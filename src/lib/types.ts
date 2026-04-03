@@ -36,7 +36,9 @@ export type OutreachStatus =
 
 export interface DailyPlan {
   id: string
-  date: string // ISO date string YYYY-MM-DD
+  date: string          // ISO date string YYYY-MM-DD
+  wake_time: string | null  // HH:MM actual wake time
+  desk_by_time: string | null // HH:MM actual desk-by time
   notes: string | null
   created_at: string
   updated_at: string
@@ -63,6 +65,7 @@ export interface BacklogItem {
   task_type: TaskType
   priority: PriorityLevel
   status: TaskStatus
+  estimated_minutes: number | null
   due_date: string | null // ISO date string
   created_at: string
   updated_at: string
@@ -121,46 +124,57 @@ export interface DailyMetrics {
 }
 
 // ─── Supabase Database type (for typed client) ────────────────────────────────
+// Must conform to GenericSchema from @supabase/supabase-js which requires
+// Tables (with Relationships), Views, Functions, Enums, CompositeTypes.
+
+type TableDef<Row, Insert, Update> = {
+  Row: Row
+  Insert: Insert
+  Update: Update
+  Relationships: []
+}
 
 export interface Database {
   public: {
     Tables: {
-      daily_plans: {
-        Row: DailyPlan
-        Insert: Omit<DailyPlan, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<DailyPlan, 'id' | 'created_at' | 'updated_at'>>
-      }
-      time_blocks: {
-        Row: TimeBlock
-        Insert: Omit<TimeBlock, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<TimeBlock, 'id' | 'created_at' | 'updated_at'>>
-      }
-      backlog_items: {
-        Row: BacklogItem
-        Insert: Omit<BacklogItem, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<BacklogItem, 'id' | 'created_at' | 'updated_at'>>
-      }
-      content_posts: {
-        Row: ContentPost
-        Insert: Omit<ContentPost, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<ContentPost, 'id' | 'created_at' | 'updated_at'>>
-      }
-      outreach_contacts: {
-        Row: OutreachContact
-        Insert: Omit<OutreachContact, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<OutreachContact, 'id' | 'created_at' | 'updated_at'>>
-      }
-      weekly_reviews: {
-        Row: WeeklyReview
-        Insert: Omit<WeeklyReview, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<WeeklyReview, 'id' | 'created_at' | 'updated_at'>>
-      }
-      daily_metrics: {
-        Row: DailyMetrics
-        Insert: Omit<DailyMetrics, 'id' | 'created_at' | 'updated_at'>
-        Update: Partial<Omit<DailyMetrics, 'id' | 'created_at' | 'updated_at'>>
-      }
+      daily_plans: TableDef<
+        DailyPlan,
+        Omit<DailyPlan, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<DailyPlan, 'id' | 'created_at' | 'updated_at'>>
+      >
+      time_blocks: TableDef<
+        TimeBlock,
+        Omit<TimeBlock, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<TimeBlock, 'id' | 'created_at' | 'updated_at'>>
+      >
+      backlog_items: TableDef<
+        BacklogItem,
+        Omit<BacklogItem, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<BacklogItem, 'id' | 'created_at' | 'updated_at'>>
+      >
+      content_posts: TableDef<
+        ContentPost,
+        Omit<ContentPost, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<ContentPost, 'id' | 'created_at' | 'updated_at'>>
+      >
+      outreach_contacts: TableDef<
+        OutreachContact,
+        Omit<OutreachContact, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<OutreachContact, 'id' | 'created_at' | 'updated_at'>>
+      >
+      weekly_reviews: TableDef<
+        WeeklyReview,
+        Omit<WeeklyReview, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<WeeklyReview, 'id' | 'created_at' | 'updated_at'>>
+      >
+      daily_metrics: TableDef<
+        DailyMetrics,
+        Omit<DailyMetrics, 'id' | 'created_at' | 'updated_at'>,
+        Partial<Omit<DailyMetrics, 'id' | 'created_at' | 'updated_at'>>
+      >
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
     Enums: {
       task_type: TaskType
       priority_level: PriorityLevel
@@ -169,5 +183,6 @@ export interface Database {
       content_status: ContentStatus
       outreach_status: OutreachStatus
     }
+    CompositeTypes: Record<string, never>
   }
 }
