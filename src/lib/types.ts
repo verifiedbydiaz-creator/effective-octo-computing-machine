@@ -25,12 +25,16 @@ export type Platform =
 export type ContentStatus = 'IDEA' | 'DRAFT' | 'READY' | 'SCHEDULED' | 'PUBLISHED'
 
 export type OutreachStatus =
-  | 'TO_CONTACT'
-  | 'CONTACTED'
-  | 'REPLIED'
-  | 'MEETING_SCHEDULED'
-  | 'CLOSED'
-  | 'NOT_INTERESTED'
+  | 'IDENTIFIED'        // pipeline col 1
+  | 'CONTACTED'         // pipeline col 2
+  | 'RESPONDED'         // pipeline col 3
+  | 'FOLLOW_UP'         // pipeline col 4
+  | 'CONNECTED'         // pipeline col 5
+  | 'TO_CONTACT'        // legacy / podcast guests
+  | 'REPLIED'           // legacy
+  | 'MEETING_SCHEDULED' // legacy
+  | 'CLOSED'            // legacy
+  | 'NOT_INTERESTED'    // legacy
 
 // ─── Table row types ──────────────────────────────────────────────────────────
 
@@ -93,11 +97,14 @@ export interface OutreachContact {
   name: string
   company: string | null
   role: string | null
+  handle: string | null        // @handle, email, or profile identifier
   platform: Platform | null
   profile_url: string | null
   status: OutreachStatus
-  category: string | null    // e.g. 'PODCAST_GUEST', 'PARTNERSHIP', etc.
-  last_contacted_at: string | null // ISO datetime string
+  category: string | null      // 'PODCAST_GUEST' | 'NETWORKING' | 'CLIENT' | 'OTHER'
+  context: string | null       // reason for reaching out / pitch angle
+  last_contacted_at: string | null // ISO date string YYYY-MM-DD
+  next_follow_up: string | null    // ISO date string YYYY-MM-DD
   notes: string | null
   created_at: string
   updated_at: string

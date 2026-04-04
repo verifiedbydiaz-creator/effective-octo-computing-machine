@@ -23,11 +23,14 @@ export async function POST(request: Request) {
       name: body.name,
       company: body.company ?? null,
       role: body.role ?? null,
+      handle: body.handle ?? null,
       platform: body.platform ?? null,
       profile_url: body.profile_url ?? null,
-      status: body.status ?? 'TO_CONTACT',
+      status: body.status ?? 'IDENTIFIED',
       category: body.category ?? null,
+      context: body.context ?? null,
       last_contacted_at: body.last_contacted_at ?? null,
+      next_follow_up: body.next_follow_up ?? null,
       notes: body.notes ?? null,
     })
     .select()
