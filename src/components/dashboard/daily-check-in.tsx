@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Scale, Flame, CheckCircle2 } from 'lucide-react'
+import { useToast } from '@/lib/toast-store'
 
 interface Props {
   date: string
@@ -13,16 +14,21 @@ export function DailyCheckIn({ date, initialWeight, initialCalories }: Props) {
   const [weight, setWeight] = useState(initialWeight?.toString() ?? '')
   const [calories, setCalories] = useState(initialCalories?.toString() ?? '')
   const [saved, setSaved] = useState(false)
+  const toast = useToast()
 
   async function save(field: 'weight_lbs' | 'calories', value: string) {
     const parsed = value === '' ? null : parseFloat(value)
     if (value !== '' && (isNaN(parsed!) || parsed! <= 0)) return
 
-    await fetch('/api/daily-metrics', {
+    const res = await fetch('/api/daily-metrics', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date, [field]: parsed }),
     })
+    if (!res.ok) {
+      toast('Failed to save check-in', 'error')
+      return
+    }
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

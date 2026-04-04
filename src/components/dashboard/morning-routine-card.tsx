@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import type { DailyPlan, TimeBlock } from '@/lib/types'
+import { useToast } from '@/lib/toast-store'
 
 interface Props {
   plan: DailyPlan | null
@@ -12,17 +13,19 @@ export function MorningRoutineCard({ plan, gymBlock }: Props) {
   const [wakeTime, setWakeTime] = useState(plan?.wake_time ?? '')
   const [deskByTime, setDeskByTime] = useState(plan?.desk_by_time ?? '')
   const [gymDone, setGymDone] = useState(gymBlock?.completed ?? false)
+  const toast = useToast()
 
   const updatePlan = useCallback(
     async (patch: { wake_time?: string | null; desk_by_time?: string | null }) => {
       if (!plan) return
-      await fetch(`/api/daily-plans/${plan.id}`, {
+      const res = await fetch(`/api/daily-plans/${plan.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
       })
+      if (!res.ok) toast('Failed to save', 'error')
     },
-    [plan]
+    [plan, toast]
   )
 
   const toggleGym = useCallback(async () => {
@@ -34,8 +37,11 @@ export function MorningRoutineCard({ plan, gymBlock }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ completed: next }),
     })
-    if (!response.ok) setGymDone(!next)
-  }, [gymBlock, gymDone])
+    if (!response.ok) {
+      setGymDone(!next)
+      toast('Failed to update gym', 'error')
+    }
+  }, [gymBlock, gymDone, toast])
 
   function wakeTimeStatus(): { label: string; color: string } | null {
     if (!wakeTime) return null

@@ -8,6 +8,7 @@ import { KanbanColumn } from './kanban-column'
 import { TaskDialog } from './task-dialog'
 import type { BacklogItem, TaskType, PriorityLevel } from '@/lib/types'
 import type { KanbanStatus } from './backlog-constants'
+import { useToast } from '@/lib/toast-store'
 
 interface Props {
   initialItems: BacklogItem[]
@@ -16,6 +17,7 @@ interface Props {
 export function KanbanBoard({ initialItems }: Props) {
   const [items, setItems] = useState<BacklogItem[]>(initialItems)
   const [draggingId, setDraggingId] = useState<string | null>(null)
+  const toast = useToast()
 
   // Filters
   const [activeTypes, setActiveTypes] = useState<Set<TaskType>>(new Set())
@@ -96,10 +98,10 @@ export function KanbanBoard({ initialItems }: Props) {
         body: JSON.stringify({ status: targetStatus }),
       })
     } catch {
-      // Revert on error
       setItems((prev) =>
         prev.map((i) => (i.id === id ? { ...i, status: item.status } : i)),
       )
+      toast('Failed to move task', 'error')
     }
   }
 

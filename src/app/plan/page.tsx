@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { isGCalConnected } from '@/lib/google-calendar'
 import { PlannerClient } from '@/components/planner/planner-client'
 import type { DailyPlan, TimeBlock, BacklogItem } from '@/lib/types'
+
+export const metadata: Metadata = { title: 'Night Planner' }
 
 function getTomorrow(): string {
   const d = new Date()

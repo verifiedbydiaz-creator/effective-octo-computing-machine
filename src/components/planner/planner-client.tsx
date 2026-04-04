@@ -6,6 +6,7 @@ import { DEFAULT_DAILY_TEMPLATE } from '@/lib/constants'
 import type { BacklogItem, DailyPlan, TaskType, TimeBlock } from '@/lib/types'
 import { TimeBlockRow } from './time-block-row'
 import { BacklogSidebar } from './backlog-sidebar'
+import { useToast } from '@/lib/toast-store'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -92,6 +93,7 @@ export function PlannerClient({
   const [syncState, setSyncState] = useState<'idle' | 'syncing' | 'synced' | 'error'>('idle')
   const [syncErrors, setSyncErrors] = useState<string[]>([])
   const [gcalConnecting, setGcalConnecting] = useState(false)
+  const toast = useToast()
 
   // ── Block mutations ────────────────────────────────────────────────────────
 
@@ -152,6 +154,7 @@ export function PlannerClient({
 
       if (!response.ok) {
         setSaveState('error')
+        toast('Failed to save plan', 'error')
         return
       }
 
@@ -174,8 +177,9 @@ export function PlannerClient({
       setTimeout(() => setSaveState('idle'), 3000)
     } catch {
       setSaveState('error')
+      toast('Failed to save plan', 'error')
     }
-  }, [tomorrow, notes, blocks, initialPlan])
+  }, [tomorrow, notes, blocks, initialPlan, toast])
 
   // ── GCal sync ──────────────────────────────────────────────────────────────
 
@@ -224,8 +228,9 @@ export function PlannerClient({
     } catch {
       setSyncState('error')
       setSyncErrors(['Network error'])
+      toast('GCal sync failed', 'error')
     }
-  }, [planId])
+  }, [planId, toast])
 
   // ── GCal connect ──────────────────────────────────────────────────────────
 

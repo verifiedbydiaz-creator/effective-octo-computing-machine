@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { ContentClient } from '@/components/content/content-client'
 import { getWeekDays } from '@/components/content/content-constants'
 import type { ContentPost, OutreachContact } from '@/lib/types'
+
+export const metadata: Metadata = { title: 'Content' }
 
 export default async function ContentPage() {
   const today = new Date().toISOString().split('T')[0]

@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { KanbanBoard } from '@/components/backlog/kanban-board'
 import type { BacklogItem } from '@/lib/types'
+
+export const metadata: Metadata = { title: 'Backlog' }
 
 export default async function BacklogPage() {
   const { data } = await supabase

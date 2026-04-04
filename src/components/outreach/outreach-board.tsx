@@ -8,6 +8,7 @@ import { PipelineColumn } from './pipeline-column'
 import { ContactDialog } from './contact-dialog'
 import type { OutreachContact } from '@/lib/types'
 import type { PipelineStatus } from './outreach-constants'
+import { useToast } from '@/lib/toast-store'
 
 interface Props {
   initialContacts: OutreachContact[]
@@ -20,6 +21,7 @@ export function OutreachBoard({ initialContacts, today }: Props) {
   const [activeTab, setActiveTab] = useState('ALL')
   const [addOpen, setAddOpen] = useState(false)
   const [selectedContact, setSelectedContact] = useState<OutreachContact | null>(null)
+  const toast = useToast()
 
   // ── Filtering ──────────────────────────────────────────────────────────────
   const pipelineStatuses = new Set<string>(PIPELINE_COLUMNS.map((c) => c.status))
@@ -101,12 +103,12 @@ export function OutreachBoard({ initialContacts, today }: Props) {
         prev.map((c) => (c.id === id ? (json.data as OutreachContact) : c)),
       )
     } catch {
-      // Revert
       setContacts((prev) =>
         prev.map((c) => (c.id === id ? contact : c)),
       )
+      toast('Failed to move contact', 'error')
     }
-  }, [contacts, today])
+  }, [contacts, today, toast])
 
   const totalContacts = contacts.filter((c) => pipelineStatuses.has(c.status)).length
 

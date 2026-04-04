@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react'
 import type { TimeBlock } from '@/lib/types'
 import { TASK_TYPE_COLORS, TASK_TYPE_LABELS } from '@/lib/constants'
+import { useToast } from '@/lib/toast-store'
 
 interface Props {
   initialBlocks: TimeBlock[]
@@ -11,6 +12,7 @@ interface Props {
 
 export function TimeBlocksList({ initialBlocks }: Props) {
   const [blocks, setBlocks] = useState(initialBlocks)
+  const toast = useToast()
 
   const toggleBlock = useCallback(async (block: TimeBlock) => {
     const next = !block.completed
@@ -31,8 +33,9 @@ export function TimeBlocksList({ initialBlocks }: Props) {
       setBlocks((prev) =>
         prev.map((b) => (b.id === block.id ? { ...b, completed: block.completed } : b))
       )
+      toast('Failed to update block', 'error')
     }
-  }, [])
+  }, [toast])
 
   const completedCount = blocks.filter((b) => b.completed).length
 

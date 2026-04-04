@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { DailyScorecard } from '@/components/dashboard/daily-scorecard'
 import { StreakCounters } from '@/components/dashboard/streak-counters'
@@ -5,7 +6,10 @@ import { MorningRoutineCard } from '@/components/dashboard/morning-routine-card'
 import { TimeBlocksList } from '@/components/dashboard/time-blocks-list'
 import { QuickAddButton } from '@/components/dashboard/quick-add-button'
 import { DailyCheckIn } from '@/components/dashboard/daily-check-in'
+import { TodayRefresh } from '@/components/dashboard/today-refresh'
 import type { DailyPlan, TimeBlock, DailyMetrics } from '@/lib/types'
+
+export const metadata: Metadata = { title: 'Dashboard' }
 
 function calcStreak(
   metrics: DailyMetrics[],
@@ -96,9 +100,12 @@ export default async function DashboardPage() {
   return (
     <div className="p-4 md:p-6 max-w-5xl space-y-5">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-        <p className="text-sm text-zinc-500 mt-0.5">{formatDate(today)}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+          <p className="text-sm text-zinc-500 mt-0.5">{formatDate(today)}</p>
+        </div>
+        <TodayRefresh />
       </div>
 
       {/* Scorecard — reads from daily_metrics */}

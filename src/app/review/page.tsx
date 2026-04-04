@@ -1,5 +1,8 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { ReviewClient } from '@/components/review/review-client'
+
+export const metadata: Metadata = { title: 'Weekly Review' }
 import { getWeekStart, getWeekEnd } from '@/components/review/review-constants'
 import type { WeeklyReview } from '@/lib/types'
 import type { WeekStats } from '@/app/api/weekly-reviews/stats/route'

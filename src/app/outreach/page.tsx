@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { OutreachBoard } from '@/components/outreach/outreach-board'
 import type { OutreachContact } from '@/lib/types'
+
+export const metadata: Metadata = { title: 'Outreach' }
 
 export default async function OutreachPage() {
   const today = new Date().toISOString().split('T')[0]
