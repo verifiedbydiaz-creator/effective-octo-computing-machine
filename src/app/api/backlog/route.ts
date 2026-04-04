@@ -8,12 +8,14 @@ export async function POST(request: Request) {
     .from('backlog_items')
     .insert({
       title: body.title,
+      description: body.description ?? null,
       task_type: body.task_type,
       priority: body.priority,
-      status: 'TODO',
+      status: body.status ?? 'TODO',
       estimated_minutes: body.estimated_minutes ?? null,
-      description: null,
-      due_date: null,
+      due_date: body.due_date ?? null,
+      parent_id: body.parent_id ?? null,
+      sort_order: body.sort_order ?? 0,
     })
     .select()
     .single()

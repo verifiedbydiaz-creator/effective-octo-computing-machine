@@ -11,7 +11,7 @@ export type TaskType =
 
 export type PriorityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'BLOCKED'
+export type TaskStatus = 'TODO' | 'THIS_WEEK' | 'IN_PROGRESS' | 'DONE' | 'BLOCKED'
 
 export type Platform =
   | 'TWITTER'
@@ -66,7 +66,9 @@ export interface BacklogItem {
   priority: PriorityLevel
   status: TaskStatus
   estimated_minutes: number | null
-  due_date: string | null // ISO date string
+  due_date: string | null   // ISO date string YYYY-MM-DD
+  parent_id: string | null  // subtask parent
+  sort_order: number        // sort within column
   created_at: string
   updated_at: string
 }
