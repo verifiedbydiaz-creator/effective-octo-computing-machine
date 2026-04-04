@@ -112,11 +112,12 @@ export interface OutreachContact {
 
 export interface WeeklyReview {
   id: string
-  week_start: string // ISO date string (Monday)
-  wins: string | null
-  losses: string | null
-  lessons: string | null
-  next_week_focus: string | null
+  week_start: string            // ISO date string (Monday)
+  wins: string | null           // What went right
+  losses: string | null         // What didn't happen / misses
+  lessons: string | null        // Adjustments for next week
+  content_analytics: string | null // What content performed well
+  next_week_focus: string | null   // Top 3 priorities (freeform)
   created_at: string
   updated_at: string
 }
