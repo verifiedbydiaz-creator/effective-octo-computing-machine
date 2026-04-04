@@ -76,11 +76,13 @@ export interface BacklogItem {
 export interface ContentPost {
   id: string
   title: string
-  body: string | null
+  body: string | null       // caption / content body
   platform: Platform
   status: ContentStatus
-  scheduled_at: string | null // ISO datetime string
-  published_at: string | null // ISO datetime string
+  scheduled_at: string | null // ISO date string YYYY-MM-DD (the planned publish date)
+  published_at: string | null // ISO datetime string (actual publish time)
+  post_link: string | null    // URL after publishing
+  notes: string | null        // internal notes / idea seed
   tags: string[] | null
   created_at: string
   updated_at: string
@@ -94,6 +96,7 @@ export interface OutreachContact {
   platform: Platform | null
   profile_url: string | null
   status: OutreachStatus
+  category: string | null    // e.g. 'PODCAST_GUEST', 'PARTNERSHIP', etc.
   last_contacted_at: string | null // ISO datetime string
   notes: string | null
   created_at: string
