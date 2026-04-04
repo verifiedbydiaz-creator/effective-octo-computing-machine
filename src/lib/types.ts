@@ -130,6 +130,9 @@ export interface DailyMetrics {
   outreach_count: number
   learning_minutes: number
   gym_completed: boolean
+  wake_time: string | null   // HH:MM copied from daily_plans
+  weight_lbs: number | null  // optional daily check-in
+  calories: number | null    // optional daily check-in
   overall_score: number | null // 1–10
   notes: string | null
   created_at: string

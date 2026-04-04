@@ -4,15 +4,8 @@ import { StreakCounters } from '@/components/dashboard/streak-counters'
 import { MorningRoutineCard } from '@/components/dashboard/morning-routine-card'
 import { TimeBlocksList } from '@/components/dashboard/time-blocks-list'
 import { QuickAddButton } from '@/components/dashboard/quick-add-button'
+import { DailyCheckIn } from '@/components/dashboard/daily-check-in'
 import type { DailyPlan, TimeBlock, DailyMetrics } from '@/lib/types'
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function calcMinutes(start: string, end: string): number {
-  const [sh, sm] = start.split(':').map(Number)
-  const [eh, em] = end.split(':').map(Number)
-  return (eh * 60 + em) - (sh * 60 + sm)
-}
 
 function calcStreak(
   metrics: DailyMetrics[],
@@ -21,9 +14,8 @@ function calcStreak(
 ): number {
   const byDate = new Map(metrics.map((m) => [m.date, m]))
   let streak = 0
-  const cursor = new Date(today + 'T12:00:00') // noon to avoid DST issues
+  const cursor = new Date(today + 'T12:00:00')
 
-  // If today has no entry yet, start streak check from yesterday
   if (!byDate.has(today)) {
     cursor.setDate(cursor.getDate() - 1)
   }
@@ -47,8 +39,6 @@ function formatDate(dateStr: string): string {
     year: 'numeric',
   })
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function DashboardPage() {
   const today = new Date().toISOString().split('T')[0]
@@ -83,41 +73,20 @@ export default async function DashboardPage() {
     timeBlocks = data ?? []
   }
 
-  // Content published today
-  const { count: contentCount } = await supabase
-    .from('content_posts')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'PUBLISHED')
-    .gte('published_at', `${today}T00:00:00.000Z`)
-    .lte('published_at', `${today}T23:59:59.999Z`)
-
-  // Outreach contacted today
-  const { count: outreachCount } = await supabase
-    .from('outreach_contacts')
-    .select('*', { count: 'exact', head: true })
-    .gte('last_contacted_at', `${today}T00:00:00.000Z`)
-    .lte('last_contacted_at', `${today}T23:59:59.999Z`)
-
-  // Daily metrics for the last 60 days (streak calculation)
+  // Daily metrics for the last 60 days (streaks + today's scorecard)
   const sixtyDaysAgo = new Date()
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
-  const { data: metrics } = await supabase
+  const { data: metricsData } = await supabase
     .from('daily_metrics')
     .select('*')
     .gte('date', sixtyDaysAgo.toISOString().split('T')[0])
     .order('date', { ascending: false })
-  const allMetrics = metrics ?? []
+  const allMetrics = (metricsData ?? []) as DailyMetrics[]
 
-  // ── Scorecard calculations ────────────────────────────────────────────────
-  const completedBlocks = timeBlocks.filter((b) => b.completed)
-  const deepWorkMinutes = completedBlocks
-    .filter((b) => b.task_type === 'DEEP_BUILD')
-    .reduce((sum, b) => sum + calcMinutes(b.start_time, b.end_time), 0)
-  const learningMinutes = completedBlocks
-    .filter((b) => b.task_type === 'LEARNING')
-    .reduce((sum, b) => sum + calcMinutes(b.start_time, b.end_time), 0)
+  // Today's metrics row (may be null if no activity yet)
+  const todayMetrics = allMetrics.find((m) => m.date === today) ?? null
 
-  // ── Streak calculations ───────────────────────────────────────────────────
+  // Streaks
   const gymStreak = calcStreak(allMetrics, today, (m) => m.gym_completed)
   const contentStreak = calcStreak(allMetrics, today, (m) => m.content_publish_count > 0)
   const deepWorkStreak = calcStreak(allMetrics, today, (m) => m.deep_build_hours >= 5)
@@ -132,12 +101,12 @@ export default async function DashboardPage() {
         <p className="text-sm text-zinc-500 mt-0.5">{formatDate(today)}</p>
       </div>
 
-      {/* Scorecard — big numbers row */}
+      {/* Scorecard — reads from daily_metrics */}
       <DailyScorecard
-        deepWorkMinutes={deepWorkMinutes}
-        contentPublished={contentCount ?? 0}
-        outreachSent={outreachCount ?? 0}
-        learningMinutes={learningMinutes}
+        deepWorkMinutes={Math.round((todayMetrics?.deep_build_hours ?? 0) * 60)}
+        contentPublished={todayMetrics?.content_publish_count ?? 0}
+        outreachSent={todayMetrics?.outreach_count ?? 0}
+        learningMinutes={todayMetrics?.learning_minutes ?? 0}
       />
 
       {/* Main grid: sidebar cards + time blocks */}
@@ -145,6 +114,11 @@ export default async function DashboardPage() {
         {/* Left column */}
         <div className="space-y-5">
           <MorningRoutineCard plan={plan} gymBlock={gymBlock} />
+          <DailyCheckIn
+            date={today}
+            initialWeight={todayMetrics?.weight_lbs ?? null}
+            initialCalories={todayMetrics?.calories ?? null}
+          />
           <StreakCounters
             gymStreak={gymStreak}
             contentStreak={contentStreak}
